@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Admin;
 use App\Notifications\AdminsignupActivate;
-use Avatar;
 use Storage;
 
 class AdminAuthController extends Controller
@@ -28,24 +27,33 @@ class AdminAuthController extends Controller
             'name' => 'required|string',
             'email' => 'required|string|email|unique:admins',
             'password' => 'required|string|confirmed',
+            'profile_img' => 'image|sometimes|nullable|mimes:jpeg,png,jpg,gif,svg|max:2048'
+
             
         ]);
+            if(isset($request->profile_img) ){
+                $profileImage = $request->file('profile_img');
+                // $profileImageSaveAsName = time() . Auth::guard('admin')->user() . "-profile." . 
+                // $profileImage->getClientOriginalExtension();
+                $profile_image_url = $profileImage->store('Admins_Photos'); 
+
+
         $admin = new Admin([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'activation_token' => str_random(60)
+            'activation_token' => str_random(60),
+            'remember_token' => str_random(10),
+            'profile_img' => $profile_image_url,
         ]);
 
         $admin->save();
 
-        $avatar = Avatar::create($admin->name)->getImageObject()->encode('png');
-        Storage::put('avatars/'.$admin->id.'/avatar.png', (string) $avatar);
-
         $admin->notify(new AdminsignupActivate($admin));
+        }
 
         return response()->json([
-            'message' => 'Successfully created admin!'
+            'message' => 'Successfully Created Admin!'
         ], 201);
     }
   
@@ -106,16 +114,16 @@ public function login(Request $request)
     }
 
     public function signupActivate($token)
-{
-    $admin = Admin::where('activation_token', $token)->first();
-    if (!$admin) {
-        return response()->json([
-            'message' => 'This activation token is invalid.'
-        ], 404);
+    {
+        $admin = Admin::where('activation_token', $token)->first();
+        if (!$admin) {
+            return response()->json([
+                'message' => 'This activation token is invalid.'
+            ], 404);
+        }
+        $admin->active = true;
+        $admin->activation_token = '';
+        $admin->save();
+        return $admin;
     }
-    $admin->active = true;
-    $admin->activation_token = '';
-    $admin->save();
-    return $admin;
-}
 }

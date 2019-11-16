@@ -179,7 +179,7 @@ return [
         Unisharp\Ckeditor\ServiceProvider::class,
         UniSharp\LaravelFilemanager\LaravelFilemanagerServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
-        Laravolt\Avatar\ServiceProvider::class,
+        Overtrue\LaravelFollow\FollowServiceProvider::class,
 
 
     ],

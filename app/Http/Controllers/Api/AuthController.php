@@ -7,8 +7,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\Notifications\SignupActivate;
-use Avatar;
-use Storage;
+
 class AuthController extends Controller
 {
     /**
@@ -25,23 +24,34 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|confirmed'
+            'password' => 'required|string|confirmed',
+            'profile_img' => 'image|sometimes|nullable|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'cover_img' => 'image|sometimes|nullable|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
+        if(isset($request->profile_img) || isset($request->cover_img) ){
+                $profileImage = $request->file('profile_img');
+                $coverImage = $request->file('cover_img');
+
+                $profile_image_url = $profileImage->store('Users_Photos'); 
+
+                $cover_image_url = $coverImage->store('Users_Photos'); 
+
         $user = new User([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'activation_token' => str_random(60)
+            'activation_token' => str_random(60),
+            'remember_token' => str_random(10),
+            'profile_img' => $profile_image_url,
+            'cover_img' => $cover_image_url,
+
         ]);
         $user->save();
-        
-        $avatar = Avatar::create($user->name)->getImageObject()->encode('png');
-        Storage::put('avatars/'.$user->id.'/avatar.png', (string) $avatar);
-
         $user->notify(new SignupActivate($user));
+}
 
         return response()->json([
-            'message' => 'Successfully created user!'
+            'message' => 'Successfully Created User!'
         ], 201);
     }
   
@@ -76,6 +86,7 @@ class AuthController extends Controller
         if ($request->remember_me)
             $token->expires_at = Carbon::now()->addWeeks(1);
         $token->save();
+        // dd(auth()->user());
         return response()->json([
             'access_token' => $tokenResult->accessToken,
             'token_type' => 'Bearer',
@@ -109,17 +120,17 @@ class AuthController extends Controller
     }
 
     public function signupActivate($token)
-{
-    $user = User::where('activation_token', $token)->first();
-    if (!$user) {
-        return response()->json([
-            'message' => 'This activation token is invalid.'
-        ], 404);
+    {
+        $user = User::where('activation_token', $token)->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'This activation token is invalid.'
+            ], 404);
+        }
+        $user->active = true;
+        $user->activation_token = '';
+        $user->save();
+        return $user;
     }
-    $user->active = true;
-    $user->activation_token = '';
-    $user->save();
-    return $user;
-}
 
 }

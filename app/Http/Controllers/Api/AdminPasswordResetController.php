@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Notifications\AdminPasswordResetRequest;
 use App\Notifications\AdminPasswordResetSuccess;
-use App\User;
 use App\Admin;
 use App\PasswordReset;
 
@@ -74,7 +73,7 @@ class AdminPasswordResetController extends Controller
      * @param  [string] password_confirmation
      * @param  [string] token
      * @return [string] message
-     * @return [json] user object
+     * @return [json] admin object
      */
     public function reset(Request $request)
     {
@@ -94,7 +93,7 @@ class AdminPasswordResetController extends Controller
         $admin = Admin::where('email', $passwordReset->email)->first();
         if (!$admin)
             return response()->json([
-                'message' => 'We can\'t find a user with that e-mail address.'
+                'message' => 'We can\'t find a admin with that e-mail address.'
             ], 404);
         $admin->password = bcrypt($request->password);
         $admin->save();

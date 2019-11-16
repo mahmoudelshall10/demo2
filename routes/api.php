@@ -21,14 +21,17 @@ Route::middleware('auth:admin-api')->get('/admin', function (Request $request) {
     return $request->auth()->guard('admin')->user();
 });
 
+// Auth::routes();
 
 Route::group([
     'prefix' => 'auth'
 ], function () {
-    Route::post('login', 'Api\AuthController@login');
-    Route::post('signup', 'Api\AuthController@signup');
-    Route::get('signup/activate/{token}', 'Api\AuthController@signupActivate');
-  
+        Route::post('login', 'Api\AuthController@login');
+        Route::post('signup', 'Api\AuthController@signup');
+        Route::get('signup/activate/{token}', 'Api\AuthController@signupActivate');
+        Route::post('like', 'Api\ProfileController@togglelike');
+        Route::post('follow', 'Api\ProfileController@togglefollow');
+
     Route::group([
       'middleware' => 'auth:api'
     ], function() {
@@ -36,6 +39,10 @@ Route::group([
         Route::get('user', 'Api\AuthController@user');
     });
 });
+
+// Route::group(['middleware' => 'auth'], function () {
+
+// });
 
 Route::group([
     'prefix' => 'auth/admin'

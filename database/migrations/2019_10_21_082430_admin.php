@@ -18,7 +18,7 @@ class Admin extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('avatar')->default('avatar.png');
+            $table->string('profile_img')->default('avatar.png')->nullable();
             $table->string('password');
             $table->boolean('active')->default(false);
             $table->string('activation_token');

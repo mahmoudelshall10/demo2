@@ -6,17 +6,18 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Storage;
+use Overtrue\LaravelFollow\Traits\CanFollow;
+use Overtrue\LaravelFollow\Traits\CanBeFollowed;
+use Overtrue\LaravelFollow\Traits\CanLike;
+use Overtrue\LaravelFollow\Traits\CanBeLiked;
+
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens, SoftDeletes;
+    use Notifiable, HasApiTokens, SoftDeletes , CanFollow , CanBeFollowed , CanLike , CanBeLiked;
 
     protected $dates = ['deleted_at'];
-    protected $appends = ['avatar_url'];
-    public function getAvatarUrlAttribute()
-    {
-        return Storage::url('avatars/'.$this->id.'/'.$this->avatar);
-    }
+
+
 
     /**
      * The attributes that are mass assignable.
@@ -27,7 +28,7 @@ class User extends Authenticatable
     
 
     protected $fillable = [
-        'name', 'email', 'password','active','activation_token', 'avatar'
+        'name', 'email', 'password', 'active', 'activation_token', 'profile_img', 'cover_img' ,
     ];
 
     /**
@@ -47,4 +48,22 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+
+    /**
+ * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+ */
+// public function followers()
+// {
+//     return $this->belongsToMany(User::class, 'followers', 'leader_id', 'follower_id')->withTimestamps();
+// }
+
+/**
+ * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+ */
+// public function followings()
+// {
+//     return $this->belongsToMany(User::class, 'followers', 'follower_id', 'leader_id')->withTimestamps();
+// }
+
 }

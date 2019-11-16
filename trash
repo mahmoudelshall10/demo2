@@ -1,0 +1,6 @@
+
+                // $profileImageSaveAsName = time() . Auth::id() . "-profile." . 
+                // $profileImage->getClientOriginalExtension();
+
+                // $coverImageSaveAsName = time() . Auth::id() . "-cover." . 
+                // $coverImage->getClientOriginalExtension();
